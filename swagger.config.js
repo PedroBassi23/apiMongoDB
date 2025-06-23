@@ -1,6 +1,6 @@
+// swagger.config.js
 import swaggerJSDoc from 'swagger-jsdoc';
 
-// Lembre-se de trocar a URL de produção pela sua URL do Render no final
 const serverUrl = process.env.RENDER_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 const swaggerOptions = {
