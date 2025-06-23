@@ -1,62 +1,31 @@
 import { Router } from 'express';
-import { createLivro, getLivros, getLivroById, getLivroByNome, updateLivro, deleteLivro } from '../controllers/livro.controller.js';
-const router = Router();
+import {
+  getAllLivros,
+  getLivroById,
+  getLivroByNome,
+  createLivro,
+  updateLivro,
+  deleteLivro
+} from '../controllers/livro.controller.js';
 
-/**
- * @swagger
- * components:
- * schemas:
- * Livro:
- * type: object
- * required: [nome, descricao, cor, peso, tipo, preco]
- * properties:
- * id:
- * type: string
- * description: O ID gerado automaticamente do livro (UUID ou ObjectId)
- * readOnly: true
- * nome:
- * type: string
- * description: O nome do livro
- * descricao:
- * type: string
- * description: Uma breve descrição do livro
- * cor:
- * type: string
- * description: A cor predominante da capa do livro
- * peso:
- * type: number
- * format: float
- * description: O peso do livro em gramas
- * tipo:
- * type: string
- * description: O tipo ou gênero do livro (ex: Ficção, Aventura, Didático)
- * preco:
- * type: number
- * format: float
- * description: O preço do livro
- * dataCadastro:
- * type: string
- * format: date-time
- * description: A data de cadastro do livro
- * readOnly: true
- */
+const router = Router();
 
 /**
  * @swagger
  * tags:
  * name: Livros
- * description: Gerenciamento do catálogo de livros
+ * description: Operações relacionadas a livros na livraria
  */
 
 /**
  * @swagger
  * /api/livros:
  * get:
- * summary: Lista todos os livros
+ * summary: Retorna uma lista de todos os livros.
  * tags: [Livros]
  * responses:
  * 200:
- * description: Lista de livros retornada com sucesso
+ * description: Lista de livros retornada com sucesso.
  * content:
  * application/json:
  * schema:
@@ -64,60 +33,34 @@ const router = Router();
  * items:
  * $ref: '#/components/schemas/Livro'
  * 500:
- * description: Erro interno do servidor
+ * description: Erro interno do servidor.
  */
-router.get('/livros', getLivros);
-
-/**
- * @swagger
- * /api/livros:
- * post:
- * summary: Cadastra um novo livro
- * tags: [Livros]
- * requestBody:
- * required: true
- * content:
- * application/json:
- * schema:
- * $ref: '#/components/schemas/Livro'
- * responses:
- * 201:
- * description: Livro criado com sucesso
- * content:
- * application/json:
- * schema:
- * $ref: '#/components/schemas/Livro'
- * 400:
- * description: Dados inválidos
- * 500:
- * description: Erro interno do servidor
- */
-router.post('/livros', createLivro);
+router.get('/livros', getAllLivros);
 
 /**
  * @swagger
  * /api/livros/{id}:
  * get:
- * summary: Busca um livro pelo ID
+ * summary: Retorna um livro pelo ID.
  * tags: [Livros]
  * parameters:
  * - in: path
  * name: id
+ * required: true
  * schema:
  * type: string
- * required: true
- * description: O ID do livro
+ * description: ID único do livro.
  * responses:
  * 200:
- * description: Detalhes do livro retornados com sucesso
+ * description: Livro retornado com sucesso.
  * content:
  * application/json:
  * schema:
  * $ref: '#/components/schemas/Livro'
  * 404:
- * description: Livro não encontrado
+ * description: Livro não encontrado.
  * 500:
- * description: Erro interno do servidor
+ * description: Erro interno do servidor.
  */
 router.get('/livros/:id', getLivroById);
 
@@ -125,18 +68,18 @@ router.get('/livros/:id', getLivroById);
  * @swagger
  * /api/livros/nome/{nome}:
  * get:
- * summary: Busca um livro pelo nome
+ * summary: Retorna livros que correspondem ao nome (parcial ou completo).
  * tags: [Livros]
  * parameters:
  * - in: path
  * name: nome
+ * required: true
  * schema:
  * type: string
- * required: true
- * description: O nome do livro a ser buscado
+ * description: Nome ou parte do nome do livro a ser buscado.
  * responses:
  * 200:
- * description: Detalhes do livro retornados com sucesso
+ * description: Lista de livros encontrada.
  * content:
  * application/json:
  * schema:
@@ -144,44 +87,88 @@ router.get('/livros/:id', getLivroById);
  * items:
  * $ref: '#/components/schemas/Livro'
  * 404:
- * description: Livro não encontrado
+ * description: Nenhum livro encontrado com o nome fornecido.
  * 500:
- * description: Erro interno do servidor
+ * description: Erro interno do servidor.
  */
 router.get('/livros/nome/:nome', getLivroByNome);
 
 /**
  * @swagger
- * /api/livros/{id}:
- * put:
- * summary: Atualiza um livro pelo ID
+ * /api/livros:
+ * post:
+ * summary: Cria um novo livro.
  * tags: [Livros]
- * parameters:
- * - in: path
- * name: id
- * schema:
- * type: string
- * required: true
- * description: O ID do livro a ser atualizado
  * requestBody:
  * required: true
  * content:
  * application/json:
  * schema:
  * $ref: '#/components/schemas/Livro'
+ * examples:
+ * novoLivro:
+ * value:
+ * titulo: "O Hobbit"
+ * autor: "J.R.R. Tolkien"
+ * genero: "Fantasia"
+ * preco: 35.50
+ * estoque: 75
+ * dataPublicacao: "1937-09-21"
  * responses:
- * 200:
- * description: Livro atualizado com sucesso
+ * 201:
+ * description: Livro criado com sucesso.
  * content:
  * application/json:
  * schema:
  * $ref: '#/components/schemas/Livro'
  * 400:
- * description: Dados inválidos
- * 404:
- * description: Livro não encontrado
+ * description: Dados inválidos para o livro.
  * 500:
- * description: Erro interno do servidor
+ * description: Erro interno do servidor.
+ */
+router.post('/livros', createLivro);
+
+/**
+ * @swagger
+ * /api/livros/{id}:
+ * put:
+ * summary: Atualiza um livro existente pelo ID.
+ * tags: [Livros]
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID único do livro a ser atualizado.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/Livro'
+ * examples:
+ * atualizarLivro:
+ * value:
+ * titulo: "O Hobbit - Edição Ilustrada"
+ * autor: "J.R.R. Tolkien"
+ * genero: "Fantasia"
+ * preco: 60.00
+ * estoque: 50
+ * dataPublicacao: "1937-09-21"
+ * responses:
+ * 200:
+ * description: Livro atualizado com sucesso.
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/Livro'
+ * 400:
+ * description: Dados inválidos para a atualização.
+ * 404:
+ * description: Livro não encontrado.
+ * 500:
+ * description: Erro interno do servidor.
  */
 router.put('/livros/:id', updateLivro);
 
@@ -189,22 +176,22 @@ router.put('/livros/:id', updateLivro);
  * @swagger
  * /api/livros/{id}:
  * delete:
- * summary: Deleta um livro pelo ID
+ * summary: Exclui um livro pelo ID.
  * tags: [Livros]
  * parameters:
  * - in: path
  * name: id
+ * required: true
  * schema:
  * type: string
- * required: true
- * description: O ID do livro a ser deletado
+ * description: ID único do livro a ser excluído.
  * responses:
- * 200:
- * description: Livro deletado com sucesso
+ * 204:
+ * description: Livro excluído com sucesso (Nenhum Conteúdo).
  * 404:
- * description: Livro não encontrado
+ * description: Livro não encontrado.
  * 500:
- * description: Erro interno do servidor
+ * description: Erro interno do servidor.
  */
 router.delete('/livros/:id', deleteLivro);
 
